@@ -57,9 +57,7 @@ for epoch in tqdm(range(epochs)):
             label = batch["label"].cuda()
             
             out = model(img)
-            print(out.argmax(dim=1))
-            print(nn.functional.softmax(out, dim=1))
-
+            
             for metric in metrics:
                 metric.update(out, label)
         

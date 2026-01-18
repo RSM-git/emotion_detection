@@ -6,35 +6,37 @@ class EmotionNet(nn.Module):
         super().__init__()
         # 1 x 48 x 48 images
         self.input = nn.Sequential(
-                nn.Conv2d(1, 16, kernel_size=5),
+                nn.Conv2d(1, 16, kernel_size=3, padding=1),
                 nn.BatchNorm2d(16),
                 nn.ReLU(inplace=True)
         )
 
         self.layers = nn.Sequential(
-                nn.Conv2d(16, 32, kernel_size=3),
-                nn.BatchNorm2d(32),
-                nn.Dropout2d(0.2),
-                nn.ReLU(inplace=True),
-                nn.Conv2d(32, 32, kernel_size=3),
+                nn.Conv2d(16, 32, kernel_size=3, padding=1),
                 nn.BatchNorm2d(32),
                 nn.Dropout2d(0.2),
                 nn.ReLU(inplace=True),
                 nn.MaxPool2d(2),
-                nn.Conv2d(32, 32, kernel_size=3),
-                nn.BatchNorm2d(32),
+
+                nn.Conv2d(32, 64, kernel_size=3, padding=1),
+                nn.BatchNorm2d(64),
                 nn.Dropout2d(0.2),
                 nn.ReLU(inplace=True),
-                nn.Conv2d(32, 32, kernel_size=3),
-                nn.BatchNorm2d(32)
+                nn.MaxPool2d(2),
+                
+                nn.Conv2d(64, 64, kernel_size=3, padding=1),
+                nn.BatchNorm2d(64),
+                nn.Dropout2d(0.2),
+                nn.ReLU(inplace=True),
+                nn.MaxPool2d(2),
         )
 
         self.mlp = nn.Sequential(
                 nn.Flatten(),
-                nn.Linear(8192, 512),
-                nn.Dropout(0.2),
+                nn.Linear(64 * 6 * 6, 256),
+                nn.Dropout(0.5),
                 nn.ReLU(inplace=True),
-                nn.Linear(512, 7)
+                nn.Linear(256, 7)
         )
 
     def forward(self, x):

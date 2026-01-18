@@ -10,5 +10,19 @@ dependencies = [
     "kagglehub>=0.4.0",
     "matplotlib>=3.10.8",
     "opencv-python>=4.12.0.88",
+    "pytest>=9.0.2",
     "tqdm>=4.67.1",
 ]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

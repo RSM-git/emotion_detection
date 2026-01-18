@@ -14,13 +14,16 @@ class EmotionNet(nn.Module):
         self.layers = nn.Sequential(
                 nn.Conv2d(16, 32, kernel_size=3),
                 nn.BatchNorm2d(32),
+                nn.Dropout2d(0.2),
                 nn.ReLU(inplace=True),
                 nn.Conv2d(32, 32, kernel_size=3),
                 nn.BatchNorm2d(32),
+                nn.Dropout2d(0.2),
                 nn.ReLU(inplace=True),
                 nn.MaxPool2d(2),
                 nn.Conv2d(32, 32, kernel_size=3),
                 nn.BatchNorm2d(32),
+                nn.Dropout2d(0.2),
                 nn.ReLU(inplace=True),
                 nn.Conv2d(32, 32, kernel_size=3),
                 nn.BatchNorm2d(32)
@@ -29,6 +32,7 @@ class EmotionNet(nn.Module):
         self.mlp = nn.Sequential(
                 nn.Flatten(),
                 nn.Linear(8192, 512),
+                nn.Dropout(0.2),
                 nn.ReLU(inplace=True),
                 nn.Linear(512, 7)
         )

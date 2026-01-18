@@ -6,7 +6,7 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision.transforms import v2
 from torchvision.io import read_image
 
-from src.data import download_dataset
+from emotion_detection.data import download_dataset
 
 def load_data(train: bool = True):
     if train:
@@ -29,7 +29,6 @@ class EmotionDataset(Dataset):
         image, label = self.samples[idx]
 
         image = image.type(torch.float32)
-        image /= 255.0
         label = torch.tensor(label, dtype=torch.long)
 
         return {"data": image, "label": label}

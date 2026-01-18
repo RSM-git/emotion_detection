@@ -21,7 +21,6 @@ def parse_grayscale_png(data: bytes):
     assert data[:8] == b'\x89PNG\r\n\x1a\n', "Does not match PNG signature."
 
     offset = 8
-    chunks = {}
     idat_data = b''
 
     # Parse data chunks
@@ -51,7 +50,6 @@ def parse_grayscale_png(data: bytes):
     
     pixels = []
     stride = width + 1  # width + 1 byte for the filter type per row
-    filter_types = set()
     
     for y in range(height):
         row_start = y * stride

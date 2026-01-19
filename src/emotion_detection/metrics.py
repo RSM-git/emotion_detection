@@ -21,9 +21,11 @@ class Accuracy(Metric):
     def __init__(self):
         self.correct: int = 0
         self.total: int = 0
+        self.value: float = 0
 
     def compute(self):
-        return self.correct / self.total
+        self.value = self.correct / self.total
+        return self.value
 
     def reset(self):
         self.correct = 0

@@ -2,14 +2,14 @@ import torch
 import torch.nn as nn
 
 from emotion_detection.model import EmotionNet
-from emotion_detection.dataset import get_dataloader
+from emotion_detection.dataset import get_train_and_val_dataloader, get_test_dataloader
 from emotion_detection.metrics import Accuracy, Recall, Precision
+from emotion_detection import utils
 
 from tqdm import tqdm
 
-train_dataloader = get_dataloader()
-test_dataloader = get_dataloader(train=False)
-
+train_dataloader, val_dataloader = get_train_and_val_dataloader()
+test_dataloader = get_test_dataloader()
 
 model = EmotionNet()
 model.cuda()
@@ -19,13 +19,21 @@ optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=1e-2)
 
 epochs: int = 100
 
-metrics = [Accuracy(), Precision(num_classes=7, device=torch.device("cuda")), Recall(num_classes=7, device=torch.device("cuda"))]
+exp_name = utils.generate_experiment_name()
+
+metrics = {
+        "accuracy": Accuracy(),
+        "precision": Precision(num_classes=7, device=torch.device("cuda")),
+        "recall": Recall(num_classes=7, device=torch.device("cuda")),
+        }
+
+best_val_accuracy = 0.0
 
 for epoch in tqdm(range(epochs)):
     
     model.train()
 
-    for metric in metrics:
+    for metric_name, metric in metrics.items():
         metric.reset()
 
     for batch in train_dataloader:
@@ -40,30 +48,33 @@ for epoch in tqdm(range(epochs)):
         optimizer.step()
         optimizer.zero_grad()
 
-        for metric in metrics:
+        for metric_name, metric in metrics.items():
             metric.update(out, label)
         
     print(f"Epoch {epoch+1}/{epochs} Train Metrics:")
-    for metric in metrics:
-        print(f"{metric}: {metric.compute()}")
+    for metric_name, metric in metrics.items():
+        print(f"{metric_name}: {metric.compute()}")
 
+    # Validation
     model.eval()
-    for metric in metrics:
+    for metric_name, metric in metrics.items():
         metric.reset()
     
     with torch.no_grad():
-        for batch in test_dataloader:
+        for batch in val_dataloader:
             img = batch["data"].cuda()
             label = batch["label"].cuda()
             
             out = model(img)
             
-            for metric in metrics:
+            for metric_name, metric in metrics.items():
                 metric.update(out, label)
         
-    print(f"Epoch {epoch+1}/{epochs} Test Metrics:")
+    print(f"Epoch {epoch+1}/{epochs} Validation Metrics:")
 
-    for metric in metrics:
-        print(f"{metric}: {metric.compute()}")
+    for metric_name, metric in metrics.items():
+        print(f"{metric_name}: {metric.compute()}")
 
-    
+    if metrics["accuracy"].value > best_val_accuracy:
+        best_val_accuracy = metrics["accuracy"].value
+        utils.save_model(model, f"models/{exp_name}.pt")

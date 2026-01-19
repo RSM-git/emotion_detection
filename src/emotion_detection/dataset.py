@@ -1,8 +1,9 @@
 import torch
+import random
 
 from PIL import Image
 
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, Subset
 from torchvision.transforms import v2
 from torchvision.io import read_image
 
@@ -39,9 +40,20 @@ class EmotionDataset(Dataset):
 
         return {"data": image, "label": label}
 
-def get_dataloader(train: bool = True):
-    dataset = EmotionDataset(train)
-    return DataLoader(dataset, batch_size=32, shuffle=train)
+
+def get_train_and_val_dataloader(train_fraction: float = 0.8):
+    dataset = EmotionDataset(train=True)
+    samples = len(dataset)
+    indices = list(range(samples))
+    random.shuffle(indices)
+    train_indices = indices[:int(train_fraction * samples)]
+    val_indices = indices[int(train_fraction * samples):]
+    return DataLoader(Subset(dataset, train_indices), batch_size=32, shuffle=True), DataLoader(Subset(dataset, val_indices), batch_size=32)
+
+
+def get_test_dataloader():
+    dataset = EmotionDataset(train=False)
+    return DataLoader(dataset, batch_size=32)
 
 if __name__ == '__main__':
     pass 

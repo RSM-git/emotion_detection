@@ -29,6 +29,13 @@ metrics = {
 
 best_val_accuracy = 0.0
 
+class Trainer:
+    def __init__(self):
+        pass
+
+    def train(self, model, train_dataloader, val_dataloader):
+        pass
+
 for epoch in tqdm(range(epochs)):
     
     model.train()

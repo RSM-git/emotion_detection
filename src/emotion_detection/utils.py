@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 
 import torch
+from torchvision.transforms import v2
 
 def label_to_emotion(label):
     emotions = {
@@ -22,7 +23,9 @@ def save_model(model: torch.nn.Module, path: str) -> None:
 
 
 def load_model(model: torch.nn.Module, model_path: str | Path) -> None:
-    return model.load_state_dict(torch.load(model_path))
+    model.load_state_dict(torch.load("models/" + model_path, weights_only=True))
+    model.eval()
+    return model
 
 
 def generate_experiment_name():
@@ -38,4 +41,7 @@ def generate_experiment_name():
     return f"{len(list(model_dir.iterdir()))}-{random.choice(adjectives)}-{random.choice(fruits)}"
 
 def preprocess_frame(frame):
-    return
+    resizer = v2.Resize((48, 48))
+    frame = resizer(frame.expand(1,1, -1, -1)).float().cuda() / 255.0
+    
+    return frame

@@ -11,7 +11,7 @@ def start_up():
 
 def select_model():
     model_name = questionary.select("Which model?",
-                                    choices=os.listdir("models")+"Go back",
+                                    choices=os.listdir("models")+["Go back"],
                                     ).ask()
     return model_name
 

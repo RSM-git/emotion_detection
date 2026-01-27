@@ -36,3 +36,6 @@ def generate_experiment_name():
     fruits = ["olive", "grape", "banana", "apple", "grapefruit", "orange"]
 
     return f"{len(list(model_dir.iterdir()))}-{random.choice(adjectives)}-{random.choice(fruits)}"
+
+def preprocess_frame(frame):
+    return

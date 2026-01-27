@@ -13,8 +13,10 @@ class Trainer:
         self.batch_size = kwargs["batch_size"]
         self.weight_decay = kwargs["weight_decay"]
         self.lr = kwargs["learning_rate"]
+        self.hidden_size = kwargs["hidden_size"]
         
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.model = model.to(self.device)
 
         self.metrics = {
                 "accuracy": Accuracy(),
@@ -44,7 +46,7 @@ class Trainer:
         criterion = nn.CrossEntropyLoss()
         optimizer = torch.optim.AdamW(
                 self.model.parameters(), 
-                lr=self.learning_rate, 
+                lr=self.lr, 
                 weight_decay=self.weight_decay
         )
 
@@ -63,7 +65,7 @@ class Trainer:
 
                 self._update_metrics(out, label)
 
-            print(f"Epoch {epoch+1}/{epochs} Train Metrics:")
+            print(f"Epoch {epoch+1}/{self.epochs} Train Metrics:")
             for metric_name, metric in self.metrics.items():
                 print(f"{metric_name}: {metric.compute()}")
             
@@ -77,14 +79,14 @@ class Trainer:
                     self._update_metrics(out, label)
 
 
-            print(f"Epoch {epoch+1}/{epochs} Validation Metrics:")
+            print(f"Epoch {epoch+1}/{self.epochs} Validation Metrics:")
 
-            for metric_name, metric in metrics.items():
+            for metric_name, metric in self.metrics.items():
                 print(f"{metric_name}: {metric.compute()}")
 
             if self.metrics["accuracy"].value > best_val_accuracy:
-                best_val_accuracy = metrics["accuracy"].value
-                utils.save_model(model, f"models/{exp_name}.pt")
+                best_val_accuracy = self.metrics["accuracy"].value
+                utils.save_model(self.model, f"models/{exp_name}.pt")
 
     @torch.no_grad()
     def test(self, test_dataloader: DataLoader):

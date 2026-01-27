@@ -1,6 +1,8 @@
 from emotion_detection.data import download_dataset, parse_grayscale_png
 from emotion_detection.cli import start_up, select_model, setup_hparams
 from emotion_detection.utils import load_model, preprocess_frame
+from emotion_detection.model import EmotionNet
+from emotion_detection.dataset import get_train_and_val_dataloader
 from pathlib import Path
 from train import Trainer
 
@@ -42,8 +44,14 @@ def main():
     match task_map[task]:
         case 0:
             train_hparams = setup_hparams()
-            trainer = Trainer()
-            trainer.train(*train_hparams)
+
+            print("Initializing model...")
+            model = EmotionNet()
+
+            print("Initializing dataloaders...")
+            train_dataloader, val_dataloader = get_train_and_val_dataloader()
+            trainer = Trainer(model, **train_hparams)
+            trainer.train(train_dataloader, val_dataloader)
 
         case 1:
             model_path = select_model()
